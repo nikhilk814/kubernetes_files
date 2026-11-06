@@ -1,0 +1,50 @@
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: mins-backup
+
+spec:
+  schedule: "*/1 * * * *"
+
+  concurrencyPolicy: Forbid
+
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: mins-backup
+        spec:
+          containers:
+            - name: backup
+              image: busybox:latest
+              imagePullPolicy: IfNotPresent
+              command:
+                - sh
+                - -c
+                - |
+                  echo "backup started"
+                  mkdir -p /backup
+                  mkdir -p /data1
+                  cp -r /data1/. /backup/
+                  echo "backup completed"
+
+              volumeMounts:
+                - name: data-vol
+                  mountPath: /data1
+                - name: backup-vol
+                  mountPath: /backup
+
+          restartPolicy: OnFailure
+
+          volumes:
+            - name: data-vol
+              hostPath:
+                path: /data1
+                type: DirectoryOrCreate
+
+            - name: backup-vol
+              hostPath:
+                path: /backup
+                type: DirectoryOrCreate
