@@ -1,0 +1,5 @@
+if you cannot access the web page of iginx
+check firewall 
+sudo firewall-cmd --list-all
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --reload
